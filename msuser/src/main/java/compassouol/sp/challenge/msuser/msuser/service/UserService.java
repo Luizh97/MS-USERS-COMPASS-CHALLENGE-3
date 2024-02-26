@@ -3,12 +3,14 @@ package compassouol.sp.challenge.msuser.msuser.service;
 import compassouol.sp.challenge.msuser.msuser.entity.User;
 import compassouol.sp.challenge.msuser.msuser.repository.UserRepository;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserCreateDto;
+import compassouol.sp.challenge.msuser.msuser.web.dto.UserLoginDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserResponseDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserUpdateDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.mapper.UserMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -17,6 +19,13 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserResponseDto createUser(UserCreateDto user) {
+        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new IllegalArgumentException("Email already registered");
+        }
+
+        if(userRepository.findByCpf(user.getCpf()).isPresent()){
+            throw new IllegalArgumentException("CPF already registered");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return UserMapper.toResponseDto(userRepository.save(UserMapper.toEntity(user)));
     }
@@ -40,6 +49,9 @@ public class UserService {
         User userFinded = userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("User not found")
         );
+        if (userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new IllegalArgumentException("Email already registered");
+        }
 
         if(user.getFirstName() != null && !user.getFirstName().isEmpty()){
             userFinded.setFirstName(user.getFirstName());
@@ -61,10 +73,10 @@ public class UserService {
 
     }
 
-    public void login(String email, String password) {
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("User not found. Please check your email")
+    @Transactional
+    public User findByEmail(String username) {
+        return userRepository.findByEmail(username).orElseThrow(
+                () -> new IllegalArgumentException("User not found")
         );
-
     }
 }

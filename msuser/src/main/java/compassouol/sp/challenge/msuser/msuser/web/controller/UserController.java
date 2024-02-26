@@ -2,6 +2,7 @@ package compassouol.sp.challenge.msuser.msuser.web.controller;
 
 import compassouol.sp.challenge.msuser.msuser.service.UserService;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserCreateDto;
+import compassouol.sp.challenge.msuser.msuser.web.dto.UserLoginDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserResponseDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserUpdateDto;
 import jakarta.validation.Valid;
@@ -17,12 +18,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("users/login")
-    public ResponseEntity login(@RequestBody String email, @RequestBody String password){
-        userService.login(email, password);
-
-        return ResponseEntity.status(HttpStatus.OK).body("Login successful");
-    }
 
 
     @PostMapping

@@ -25,6 +25,9 @@ public class User {
     private String cep;
     @Temporal(TemporalType.DATE)
     private Date birthDate;
+    public enum Role {
+        ROLE_CLIENTE
+    }
     private boolean status = false;
 
 }
