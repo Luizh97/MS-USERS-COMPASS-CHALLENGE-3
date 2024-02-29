@@ -1,6 +1,7 @@
 package compassouol.sp.challenge.msuser.msuser.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import compassouol.sp.challenge.msuser.msuser.client.MsAddressClient;
 import compassouol.sp.challenge.msuser.msuser.entity.DadosUserSistema;
 import compassouol.sp.challenge.msuser.msuser.entity.Usuario;
 import compassouol.sp.challenge.msuser.msuser.infra.mqueue.MovimentacaoUserPublisher;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MovimentacaoUserPublisher movimentacaoUserPublisher;
+    private final MsAddressClient msAddressClient;
 
 
 
@@ -36,6 +39,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         movimentacaoUserPublisher.movimentacaoUsuario(new DadosUserSistema(user.getEmail(), "CREATE", new Date()));
+        buscarEnderecoPorCep(user.getCep());
         return UserMapper.toResponseDto(userRepository.save(UserMapper.toEntity(user)));
     }
 
@@ -104,5 +108,8 @@ public class UserService {
         }catch (Exception e){
             throw new IllegalArgumentException("Error to send message to queue");
         }
+    }
+    public void buscarEnderecoPorCep(String cep) {
+         msAddressClient.buscarEndereco(cep);
     }
 }
