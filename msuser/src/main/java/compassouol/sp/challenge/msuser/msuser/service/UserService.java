@@ -39,8 +39,9 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         movimentacaoUserPublisher.movimentacaoUsuario(new DadosUserSistema(user.getEmail(), "CREATE", new Date()));
-        buscarEnderecoPorCep(user.getCep());
-        return UserMapper.toResponseDto(userRepository.save(UserMapper.toEntity(user)));
+        Usuario userEntity = userRepository.save(UserMapper.toEntity(user));
+        buscarEnderecoPorCep(userEntity.getCep(), userEntity.getId());
+        return UserMapper.toResponseDto(userEntity);
     }
 
     public UserResponseDto getUserById(Long id) {
@@ -109,7 +110,11 @@ public class UserService {
             throw new IllegalArgumentException("Error to send message to queue");
         }
     }
-    public void buscarEnderecoPorCep(String cep) {
-         msAddressClient.buscarEndereco(cep);
+    public void buscarEnderecoPorCep(String cep, Long id) {
+         msAddressClient.buscarEnderecoUsuario(cep, id);
     }
+
+//    public void buscarUsuario(Usuario user) {
+//         msAddressClient.buscarUsuario(user);
+//    }
 }
