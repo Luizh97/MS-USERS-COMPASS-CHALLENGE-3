@@ -1,24 +1,32 @@
 package compassouol.sp.challenge.msuser.msuser.service;
 
-import compassouol.sp.challenge.msuser.msuser.entity.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import compassouol.sp.challenge.msuser.msuser.entity.DadosUserSistema;
+import compassouol.sp.challenge.msuser.msuser.entity.Usuario;
+import compassouol.sp.challenge.msuser.msuser.infra.mqueue.MovimentacaoUserPublisher;
 import compassouol.sp.challenge.msuser.msuser.repository.UserRepository;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserCreateDto;
-import compassouol.sp.challenge.msuser.msuser.web.dto.UserLoginDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserResponseDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserUpdateDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.mapper.UserMapper;
-import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@AllArgsConstructor
-public class UserService {
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+import java.util.Date;
 
-    public UserResponseDto createUser(UserCreateDto user) {
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final MovimentacaoUserPublisher movimentacaoUserPublisher;
+
+
+
+    public UserResponseDto createUser(UserCreateDto user) throws JsonProcessingException {
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new IllegalArgumentException("Email already registered");
         }
@@ -27,26 +35,30 @@ public class UserService {
             throw new IllegalArgumentException("CPF already registered");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        movimentacaoUserPublisher.movimentacaoUsuario(new DadosUserSistema(user.getEmail(), "CREATE", new Date()));
         return UserMapper.toResponseDto(userRepository.save(UserMapper.toEntity(user)));
     }
 
     public UserResponseDto getUserById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(
+        Usuario user = userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("User not found")
         );
+
 
         return UserMapper.toResponseDto(user);
     }
 
-    public void updateUserPassword(Long id, String password) {
-        User user = userRepository.findById(id).orElseThrow(
+    public void updateUserPassword(Long id, String password) throws JsonProcessingException {
+        Usuario user = userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("User not found")
         );
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(password);
+        userRepository.save(user);
+        movimentacaoUserPublisher.movimentacaoUsuario(new DadosUserSistema(user.getEmail(), "UPDATE_PASSWORD", new Date()));
     }
 
-    public UserResponseDto updateUser(Long id, UserUpdateDto user) {
-        User userFinded = userRepository.findById(id).orElseThrow(
+    public UserResponseDto updateUser(Long id, UserUpdateDto user) throws JsonProcessingException {
+        Usuario userFinded = userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("User not found")
         );
         if (userRepository.findByEmail(user.getEmail()).isPresent()){
@@ -69,14 +81,28 @@ public class UserService {
             userFinded.setCep(user.getCep());
         }
         userRepository.save(userFinded);
+        movimentacaoUserPublisher.movimentacaoUsuario(new DadosUserSistema(userFinded.getEmail(), "UPDATE", new Date()));
         return UserMapper.toResponseDto(userFinded);
 
     }
 
-    @Transactional
-    public User findByEmail(String username) {
+    @Transactional(readOnly = true)
+    public Usuario findByEmail(String username) {
         return userRepository.findByEmail(username).orElseThrow(
                 () -> new IllegalArgumentException("User not found")
         );
+    }
+    @Transactional(readOnly = true)
+    public Usuario.Role buscarRolerPorEmail(String username) {
+        return userRepository.findRoleByEmail(username);
+
+    }
+    public Object movimentacaoSistema(DadosUserSistema dadosUserSistema) {
+        try{
+            movimentacaoUserPublisher.movimentacaoUsuario(dadosUserSistema);
+            return "Message sent to queue";
+        }catch (Exception e){
+            throw new IllegalArgumentException("Error to send message to queue");
+        }
     }
 }

@@ -1,5 +1,6 @@
 package compassouol.sp.challenge.msuser.msuser.web.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import compassouol.sp.challenge.msuser.msuser.service.UserService;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserCreateDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserLoginDto;
@@ -21,7 +22,7 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity createUser(@RequestBody @Valid UserCreateDto user){
+    public ResponseEntity createUser(@RequestBody @Valid UserCreateDto user) throws JsonProcessingException {
         UserResponseDto dto=  userService.createUser(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -34,14 +35,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
     @PutMapping("/{id}/password")
-    public ResponseEntity updateUserPassword(@PathVariable Long id, @RequestBody String password){
+    public ResponseEntity updateUserPassword(@PathVariable Long id, @RequestBody String password) throws JsonProcessingException {
         userService.updateUserPassword(id, password);
 
         return ResponseEntity.status(HttpStatus.OK).body("Password updated");
     }
 
     @PutMapping("{id}")
-    public ResponseEntity updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateDto user){
+    public ResponseEntity updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateDto user) throws JsonProcessingException {
         UserResponseDto dto =  userService.updateUser(id, user);
 
         return ResponseEntity.status(HttpStatus.OK).body(dto);

@@ -22,7 +22,9 @@ public class JwtUtils {
     public static final long EXPIRATION_HOURS = 0;
     public static final long EXPIRATION_MINUTES = 2;
 
-    private JwtUtils(){}
+    private JwtUtils(){
+
+    }
 
     private static Key generateKey(){
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
@@ -34,17 +36,17 @@ public class JwtUtils {
         return Date.from(end.atZone(ZoneId.systemDefault()).toInstant());
     }
     public static JwtToken createToken(String username, String role){
-        Date issueAt = new Date();
-        Date limit = toExpireDate(issueAt);
-        String token = Jwts.builder()
-                .setHeaderParam("typ", "JWT")
-                .setSubject(username)
-                .setIssuedAt(issueAt)
-                .setExpiration(limit)
-                .signWith(generateKey(), SignatureAlgorithm.HS256)
-                .claim("role", role)
-                .compact();
-        return new JwtToken(token);
+            Date issuedAt = new Date();
+            Date limit = toExpireDate(issuedAt);
+            String token = Jwts.builder()
+                    .setHeaderParam("typ", "JWT")
+                    .setSubject(username)
+                    .setIssuedAt(issuedAt)
+                    .setExpiration(limit)
+                    .signWith(generateKey(), SignatureAlgorithm.HS256)
+                    .claim("role", role)
+                    .compact();
+            return new JwtToken(token);
     }
 
     private static Claims getClaimsFromToken(String token){

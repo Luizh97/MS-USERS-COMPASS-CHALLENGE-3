@@ -1,12 +1,12 @@
 package compassouol.sp.challenge.msuser.msuser.web.dto.mapper;
 
-import compassouol.sp.challenge.msuser.msuser.entity.User;
+import compassouol.sp.challenge.msuser.msuser.entity.Usuario;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserCreateDto;
 import compassouol.sp.challenge.msuser.msuser.web.dto.UserResponseDto;
 
 public class UserMapper {
-    public static User toEntity(UserCreateDto dto) {
-        User user = new User();
+    public static Usuario toEntity(UserCreateDto dto) {
+        Usuario user = new Usuario();
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
@@ -18,7 +18,7 @@ public class UserMapper {
         return user;
     }
 
-    public static UserResponseDto toResponseDto(User user) {
+    public static UserResponseDto toResponseDto(Usuario user) {
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setFirstName(user.getFirstName());
         userResponseDto.setLastName(user.getLastName());

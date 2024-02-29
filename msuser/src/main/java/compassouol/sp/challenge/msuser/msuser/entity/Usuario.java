@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
-public class User {
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -25,8 +25,11 @@ public class User {
     private String cep;
     @Temporal(TemporalType.DATE)
     private Date birthDate;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 25)
+    private Role role = Role.ROLE_USUARIO;
     public enum Role {
-        ROLE_CLIENTE
+        ROLE_USUARIO
     }
     private boolean status = false;
 

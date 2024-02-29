@@ -1,20 +1,15 @@
 package compassouol.sp.challenge.msuser.msuser.jwt;
 
-import org.springframework.security.core.GrantedAuthority;
+import compassouol.sp.challenge.msuser.msuser.entity.Usuario;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
-
-import java.util.Collection;
-import java.util.Collections;
 
 public class JwtUserDetails extends User {
 
 
-    compassouol.sp.challenge.msuser.msuser.entity.User user;
-    public JwtUserDetails(compassouol.sp.challenge.msuser.msuser.entity.User user) {
-        super(user.getEmail(), user.getPassword(), AuthorityUtils.createAuthorityList("ROLE_USER"));
+    Usuario user;
+    public JwtUserDetails(Usuario user) {
+        super(user.getEmail(), user.getPassword(), AuthorityUtils.createAuthorityList(user.getRole().name()));
         this.user = user;
     }
     public Long getId() {
@@ -22,7 +17,7 @@ public class JwtUserDetails extends User {
     }
 
     public String getRole() {
-        return "ROLE_USER";
+        return user.getRole().name();
     }
 
 }
