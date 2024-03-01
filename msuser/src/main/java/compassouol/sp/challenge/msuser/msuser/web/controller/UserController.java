@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+
 @RestController
 @RequestMapping("/v1/users")
 @AllArgsConstructor
@@ -22,7 +24,7 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity createUser(@RequestBody @Valid UserCreateDto user) throws JsonProcessingException {
+    public ResponseEntity createUser(@RequestBody @Valid UserCreateDto user) throws JsonProcessingException, SQLIntegrityConstraintViolationException {
         UserResponseDto dto=  userService.createUser(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
