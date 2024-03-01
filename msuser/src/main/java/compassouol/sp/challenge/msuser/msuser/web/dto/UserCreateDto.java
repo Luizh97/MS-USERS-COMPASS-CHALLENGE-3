@@ -1,10 +1,7 @@
 package compassouol.sp.challenge.msuser.msuser.web.dto;
 
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +32,7 @@ public class UserCreateDto {
     @CPF(message = "Invalid CPF")
     private String cpf;
     @NotBlank(message = "CEP is required")
+    @Pattern(regexp = "\\d{5}-\\d{3}", message = "O CEP deve estar no formato 99999-999")
     private String cep;
     @NotNull
     private Date birthDate;

@@ -19,8 +19,10 @@ public class Usuario {
     private Long id;
     private String firstName;
     private String lastName;
+    @Column(unique = true)
     private String email;
     private String password;
+    @Column(unique = true)
     private String cpf;
     private String cep;
     @Temporal(TemporalType.DATE)
